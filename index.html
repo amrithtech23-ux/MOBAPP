@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile App Forge | Bold Frame Studio</title>
+    <style>
+        :root {
+            --bg-dark: #0f0f13;
+            --card-bg: #1a1a24;
+            --accent: #00e5ff;
+            --accent-hover: #00b8d4;
+            --text-main: #e0e0e0;
+            --text-muted: #888899;
+            --border: #333344;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: var(--bg-dark); color: var(--text-main); padding: 20px; line-height: 1.5; }
+        .container { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); }
+        h1, h2 { text-align: center; color: var(--accent); margin-bottom: 15px; }
+        .header-sub { text-align: center; color: var(--text-muted); margin-bottom: 25px; font-size: 0.9em; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 0.85em; }
+        select, textarea { 
+            width: 100%; padding: 10px; background: #111118; color: var(--text-main); 
+            border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; 
+        }
+        textarea { min-height: 120px; resize: vertical; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0; justify-content: center; }
+        button { 
+            padding: 10px 18px; background: var(--accent); color: #000; font-weight: 600; 
+            border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; 
+        }
+        button:hover { background: var(--accent-hover); }
+        button:disabled { opacity: 0.6; cursor: wait; }
+        .btn-reset { background: #444; color: #fff; }
+        .btn-reset:hover { background: #555; }
+
+        .output-section { margin-top: 20px; }
+        .preview-box {
+            margin-top: 15px; background: #fff; border-radius: 8px; overflow: hidden;
+            height: 450px; display: none; border: 2px solid var(--accent);
+        }
+        iframe { width: 100%; height: 100%; border: none; }
+        
+        .status { text-align: center; color: var(--text-muted); font-size: 0.85em; margin-top: 10px; }
+        .bold-border { border: 2px solid var(--accent); padding: 2px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📱 MOBILE APPs DESIGNS<br>IDEATION STUDIO</h1>
+    <div class="header-sub">⚡ Select App Type → Dynamic Category → Generate UX Process & UI Design | Bold Frame Architecture</div>
+
+    <div class="grid-2">
+        <div>
+            <label>📌 1. MOBILE APPLICATION TYPE</label>
+            <select id="app-type">
+                <option>-- Select Application Type --</option>
+                <option>🛍️ E-Commerce & Shopping</option>
+                <option>🏥 Healthcare & Telemedicine</option>
+                <option>🤖 Personal Assistants & Productivity</option>
+                <option>🚌 Transportation & Travel</option>
+                <option>🍔 Food & Restaurant</option>
+                <option>💰 Finance & Banking</option>
+                <option>💬 Social Media & Communication</option>
+                <option>📰 News, Information & Education</option>
+                <option>🎬 Entertainment & Streaming</option>
+                <option>🔧 Utilities & Tools</option>
+                <option>🏠 Home & Lifestyle Management</option>
+                <option>💪 Fitness, Health & Wellness</option>
+                <option>✈️ Travel & Accommodation</option>
+                <option>💘 Dating & Relationships</option>
+                <option>💼 Career, Job Search & Freelancing</option>
+                <option>📸 Photography & Video Editing</option>
+                <option>🎵 Music & Audio Production</option>
+                <option>🏡 Real Estate & Property</option>
+                <option>🚗 Automotive & Vehicles</option>
+                <option>👶 Parenting & Childcare</option>
+                <option>⚽ Sports & Outdoor Activities</option>
+                <option>🥽 AR & VR</option>
+                <option>🏛️ Government & Civic Services</option>
+                <option>📨 Messaging & Communication</option>
+            </select>
+        </div>
+        <div>
+            <label>📂 2. CATEGORY (DYNAMIC)</label>
+            <select id="app-category" disabled><option>-- First select an App Type --</option></select>
+        </div>
+    </div>
+
+    <div class="output-section">
+        <label>🧠 UX PROCESS (USER JOURNEY)</label>
+        <textarea id="ux-output" readonly placeholder="User journey will appear here..."></textarea>
+    </div>
+    <div class="output-section">
+        <label>🎨 UI DESIGN (SCREENS & LAYOUTS)</label>
+        <textarea id="ui-output" readonly placeholder="UI layout details will appear here..."></textarea>
+    </div>
+    <div class="output-section">
+        <label>🧠 WIREFRAME DIAGRAM</label>
+        <textarea id="wireframe-input" placeholder="Describe your wireframe layout, components, and flow here..."></textarea>
+    </div>
+    <div class="output-section">
+        <label>🎨 ANGULAR FRAME CODE</label>
+        <textarea id="angular-code-output" readonly placeholder="Generated complete HTML/CSS/JS code will appear here..."></textarea>
+    </div>
+
+    <div class="btn-group">
+        <button onclick="generateUXUI()">✨ GENERATE UX & UI</button>
+        <button onclick="resetFields()" class="btn-reset">⟳ RESET FIELDS</button>
+        <button onclick="generateWireframe()">✨ GENERATE WIREFRAME DIAGRAM</button>
+        <button id="gen-angular-btn" onclick="generateAngularFrame()">✨ GENERATE ANGULAR FRAME</button>
+    </div>
+
+    <div id="preview-container" class="preview-box">
+        <iframe id="preview-iframe"></iframe>
+    </div>
+
+    <div class="status">🧱 BOLD BORDER EDITION | Dynamic category mapping for 25+ app types | Professional UX/UI generator for rapid prototyping</div>
+</div>
+
+<script>
+    // OpenRouter Configuration
+    const API_KEY = "{{OPENROUTER_API_KEY}}"; // Injected by Streamlit or replace manually
+    const MODEL = "qwen/qwen-2.5-72b-instruct";
+
+    // Category mapping (simplified for demo)
+    document.getElementById('app-type').addEventListener('change', function() {
+        const catSelect = document.getElementById('app-category');
+        catSelect.disabled = false;
+        catSelect.innerHTML = `<option value="default">Default Sub-Category</option>`;
+    });
+
+    function resetFields() {
+        document.querySelectorAll('textarea').forEach(t => t.value = '');
+        document.getElementById('preview-container').style.display = 'none';
+        alert('Fields reset successfully.');
+    }
+
+    // Mock generators for UX/UI & Wireframe (placeholder logic)
+    function generateUXUI() { document.getElementById('ux-output').value = "[UX Process Generated]"; document.getElementById('ui-output').value = "[UI Design Generated]"; }
+    function generateWireframe() { document.getElementById('wireframe-input').value = "Header: App Logo & Nav\nHero: Feature Banner\nContent: Card Grid\nFooter: Links & Social\n\nResponsive mobile-first layout with smooth transitions."; }
+
+    // Core Angular Frame Generator
+    async function generateAngularFrame() {
+        const wireframe = document.getElementById('wireframe-input').value.trim();
+        const btn = document.getElementById('gen-angular-btn');
+        const output = document.getElementById('angular-code-output');
+        const preview = document.getElementById('preview-container');
+        const iframe = document.getElementById('preview-iframe');
+
+        if (!wireframe) return alert("⚠️ Please describe a wireframe diagram first.");
+        if (API_KEY === "{{OPENROUTER_API_KEY}}") return alert("⚠️ OpenRouter API Key not configured.");
+
+        btn.disabled = true;
+        btn.textContent = "⏳ Generating Angular Frame...";
+        output.value = "";
+
+        try {
+            const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${API_KEY}`,
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": window.location.href,
+                    "X-Title": "Mobile App Forge"
+                },
+                body: JSON.stringify({
+                    model: MODEL,
+                    messages: [
+                        { role: "system", content: "You are an expert Frontend Developer. Generate a COMPLETE, STANDALONE, RESPONSIVE HTML webpage with embedded <style> and <script> tags based on the wireframe description. Return ONLY raw HTML code. No markdown, no explanations, no backticks." },
+                        { role: "user", content: wireframe }
+                    ]
+                })
+            });
+
+            if (!res.ok) throw new Error(`API Error: ${res.status}`);
+            const data = await res.json();
+            let code = data.choices[0].message.content;
+            
+            // Clean markdown formatting if LLM adds it
+            code = code.replace(/```html/g, '').replace(/```/g, '').trim();
+            
+            output.value = code;
+            iframe.srcdoc = code;
+            preview.style.display = 'block';
+            preview.scrollIntoView({ behavior: 'smooth' });
+
+        } catch (err) {
+            alert("❌ Generation failed: " + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "✨ GENERATE ANGULAR FRAME";
+        }
+    }
+</script>
+</body>
+</html>
