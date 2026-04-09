@@ -13,6 +13,8 @@
             --text-main: #e0e0e0;
             --text-muted: #888899;
             --border: #333344;
+            --error: #ff4444;
+            --success: #00ff88;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
         body { background: var(--bg-dark); color: var(--text-main); padding: 20px; line-height: 1.5; }
@@ -46,12 +48,22 @@
         iframe { width: 100%; height: 100%; border: none; }
         
         .status { text-align: center; color: var(--text-muted); font-size: 0.85em; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+        .api-status { 
+            padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center; 
+            font-size: 0.9em; font-weight: 600;
+        }
+        .api-status.configured { background: rgba(0, 255, 136, 0.1); color: var(--success); border: 1px solid var(--success); }
+        .api-status.not-configured { background: rgba(255, 68, 68, 0.1); color: var(--error); border: 1px solid var(--error); }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>📱 MOBILE APPs DESIGNS<br>IDEATION STUDIO</h1>
     <div class="header-sub">⚡ Select App Type → Dynamic Category → Generate UX Process & UI Design | Bold Frame Architecture</div>
+
+    <div id="api-status-div" class="api-status not-configured">
+        ⚠️ Checking API Key...
+    </div>
 
     <div class="grid-2">
         <div>
@@ -129,6 +141,18 @@
     const API_KEY = "{{OPENROUTER_API_KEY}}";
     const MODEL = "qwen/qwen-2.5-72b-instruct";
 
+    // Check API Key on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusDiv = document.getElementById('api-status-div');
+        if (API_KEY && API_KEY !== "{{OPENROUTER_API_KEY}}" && API_KEY.trim() !== "") {
+            statusDiv.className = "api-status configured";
+            statusDiv.innerHTML = "✅ API Key configured successfully!";
+        } else {
+            statusDiv.className = "api-status not-configured";
+            statusDiv.innerHTML = "⚠️ API Key not configured - Generation will fail";
+        }
+    });
+
     // --- Category Mapping ---
     const categoryMapping = {
         "🛍️ E-Commerce & Shopping": ["General Shopping", "Fashion & Apparel", "Electronics & Gadgets", "Grocery & Supermarket", "Luxury Goods", "Second-hand/Thrift", "Auction & Bidding", "Multi-vendor Marketplace"],
@@ -199,14 +223,17 @@
         const output = document.getElementById('angular-code-output');
         const preview = document.getElementById('preview-container');
         const iframe = document.getElementById('preview-iframe');
+        const statusDiv = document.getElementById('api-status-div');
 
         if (!wireframe) {
             alert("⚠️ Please describe a wireframe diagram first.");
             return;
         }
         
-        if (API_KEY === "{{OPENROUTER_API_KEY}}" || !API_KEY) {
-            alert("⚠️ OpenRouter API Key not configured.");
+        if (!API_KEY || API_KEY === "{{OPENROUTER_API_KEY}}" || API_KEY.trim() === "") {
+            statusDiv.className = "api-status not-configured";
+            statusDiv.innerHTML = "❌ API Key not configured!";
+            alert("❌ OpenRouter API Key not configured.\n\nPlease check:\n1. Streamlit Settings → Secrets\n2. Add: OPENROUTER_API_KEY = \"your-key-here\"\n3. Save and redeploy");
             return;
         }
 
@@ -232,18 +259,28 @@
                 })
             });
 
-            if (!res.ok) throw new Error(`API Error: ${res.status}`);
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(`API Error ${res.status}: ${errorData.error?.message || res.statusText}`);
+            }
+            
             const data = await res.json();
             let code = data.choices[0].message.content;
             
+            // Clean markdown formatting
             code = code.replace(/```html/g, '').replace(/```/g, '').trim();
             
             output.value = code;
             iframe.srcdoc = code;
             preview.style.display = 'block';
             preview.scrollIntoView({ behavior: 'smooth' });
+            
+            statusDiv.className = "api-status configured";
+            statusDiv.innerHTML = "✅ Generation successful!";
 
         } catch (err) {
+            statusDiv.className = "api-status not-configured";
+            statusDiv.innerHTML = "❌ Generation failed!";
             alert("❌ Generation failed: " + err.message);
         } finally {
             btn.disabled = false;
