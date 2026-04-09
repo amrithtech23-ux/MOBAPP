@@ -13,7 +13,7 @@ html_path = Path("index.html")
 if not html_path.exists():
     st.error("❌ index.html not found. Please upload it to the repository.")
     st.stop()
-
+ 
 html_content = html_path.read_text(encoding="utf-8")
 
 # Get API Key from secrets - try multiple possible key names
