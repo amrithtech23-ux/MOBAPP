@@ -16,15 +16,22 @@ if not html_path.exists():
 
 html_content = html_path.read_text(encoding="utf-8")
 
-# Get API Key from secrets (using the correct name from your screenshot)
-api_key = st.secrets.get("OPENROUTER_API_KEY", "")
+# Get API Key from secrets - try multiple possible key names
+api_key = (st.secrets.get("OPENROUTER_API_KEY") or 
+           st.secrets.get("OPENROUTER_API_KEY", "") or
+           st.secrets.get("MOBAPPKEY", ""))
 
+# Debug: Show if key is found (first 20 chars only for security)
 if api_key:
+    st.success(f"✅ API Key loaded successfully! (Key starts with: {api_key[:20]}...)")
     # Replace the placeholder with the actual API key
     html_content = html_content.replace("{{OPENROUTER_API_KEY}}", api_key)
 else:
-    st.warning("⚠️ `OPENROUTER_API_KEY` not found in secrets. Generation will fail.")
-    st.info("Please add your API key in Settings → Secrets as: OPENROUTER_API_KEY = 'your-key-here'")
+    st.error("❌ API Key NOT found in secrets!")
+    st.warning("⚠️ Please check your Streamlit Secrets configuration.")
+    st.info("**Expected format in Secrets:**\n```\nOPENROUTER_API_KEY = \"sk-or-v1-your-key-here\"\n```")
+    # Still replace with empty string to avoid placeholder in code
+    html_content = html_content.replace("{{OPENROUTER_API_KEY}}", "")
 
 # Render the HTML interface
 st.components.v1.html(html_content, height=1200, scrolling=True)
