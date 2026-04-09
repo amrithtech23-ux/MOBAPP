@@ -54,6 +54,14 @@
         }
         .api-status.configured { background: rgba(0, 255, 136, 0.1); color: var(--success); border: 1px solid var(--success); }
         .api-status.not-configured { background: rgba(255, 68, 68, 0.1); color: var(--error); border: 1px solid var(--error); }
+        
+        /* Restored Selection Status Block */
+        .selection-status {
+            margin-top: 10px; padding: 8px; text-align: center;
+            font-size: 0.85em; color: var(--text-muted);
+            border: 1px dashed var(--border); border-radius: 4px;
+        }
+        .selection-status.active { color: var(--accent); border-color: var(--accent); }
     </style>
 </head>
 <body>
@@ -102,6 +110,12 @@
             <select id="app-category" disabled>
                 <option value="">-- First select an App Type --</option>
             </select>
+            <!-- Restored Selection Status Block -->
+            <div id="selection-status" class="selection-status">
+                ⚡ WAITING FOR SELECTION<br>
+                🎨 WAITING FOR TYPE & CATEGORY SELECTION<br>
+                -- Select App Type and Category first --
+            </div>
         </div>
     </div>
 
@@ -184,10 +198,13 @@
 
     const appTypeSelect = document.getElementById('app-type');
     const appCategorySelect = document.getElementById('app-category');
+    const selectionStatus = document.getElementById('selection-status');
 
     appTypeSelect.addEventListener('change', function() {
         const selectedType = this.value;
         appCategorySelect.innerHTML = '<option value="">-- Select Category --</option>';
+        selectionStatus.className = "selection-status";
+        selectionStatus.innerHTML = "⚡ WAITING FOR SELECTION<br>🎨 WAITING FOR TYPE & CATEGORY SELECTION<br>-- Select App Type and Category first --";
         
         if (selectedType && categoryMapping[selectedType]) {
             appCategorySelect.disabled = false;
@@ -199,13 +216,27 @@
             });
         } else {
             appCategorySelect.disabled = true;
-            appCategorySelect.innerHTML = '<option value="">-- First select an App Type --</option>';
+        }
+    });
+
+    appCategorySelect.addEventListener('change', function() {
+        if (this.value) {
+            selectionStatus.className = "selection-status active";
+            selectionStatus.innerHTML = "✅ SELECTION COMPLETE<br>🎨 Type & Category Selected<br>-- Ready to Generate --";
+        } else {
+            selectionStatus.className = "selection-status";
+            selectionStatus.innerHTML = "⚡ WAITING FOR SELECTION<br>🎨 WAITING FOR TYPE & CATEGORY SELECTION<br>-- Select App Type and Category first --";
         }
     });
 
     function resetFields() {
         document.querySelectorAll('textarea').forEach(t => t.value = '');
         document.getElementById('preview-container').style.display = 'none';
+        selectionStatus.className = "selection-status";
+        selectionStatus.innerHTML = "⚡ WAITING FOR SELECTION<br>🎨 WAITING FOR TYPE & CATEGORY SELECTION<br>-- Select App Type and Category first --";
+        appCategorySelect.disabled = true;
+        appCategorySelect.innerHTML = '<option value="">-- First select an App Type --</option>';
+        appTypeSelect.value = "";
     }
 
     function generateUXUI() { 
