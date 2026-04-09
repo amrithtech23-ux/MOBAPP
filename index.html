@@ -46,7 +46,6 @@
         iframe { width: 100%; height: 100%; border: none; }
         
         .status { text-align: center; color: var(--text-muted); font-size: 0.85em; margin-top: 10px; }
-        .bold-border { border: 2px solid var(--accent); padding: 2px; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -60,11 +59,11 @@
             <select id="app-type">
                 <option>-- Select Application Type --</option>
                 <option>🛍️ E-Commerce & Shopping</option>
-                <option>🏥 Healthcare & Telemedicine</option>
+                <option>🏥 Healthcare & Telemedicine (Doctors)</option>
                 <option>🤖 Personal Assistants & Productivity</option>
-                <option>🚌 Transportation & Travel</option>
+                <option>🚌 Transportation & Travel (Bus Reservation)</option>
                 <option>🍔 Food & Restaurant</option>
-                <option>💰 Finance & Banking</option>
+                <option>💰 Finance & Banking (FinTech)</option>
                 <option>💬 Social Media & Communication</option>
                 <option>📰 News, Information & Education</option>
                 <option>🎬 Entertainment & Streaming</option>
@@ -82,7 +81,8 @@
                 <option>⚽ Sports & Outdoor Activities</option>
                 <option>🥽 AR & VR</option>
                 <option>🏛️ Government & Civic Services</option>
-                <option>📨 Messaging & Communication</option>
+                <option>📨 Messaging & Communication (Expanded)</option>
+                <option>🍽️ Food & Restaurant (Bonus Expanded)</option>
             </select>
         </div>
         <div>
@@ -123,28 +123,69 @@
 </div>
 
 <script>
-    // OpenRouter Configuration
-    const API_KEY = "{{OPENROUTER_API_KEY}}"; // Injected by Streamlit or replace manually
+    // --- OpenRouter Configuration ---
+    const API_KEY = "{{MOBAPPKEY}}"; // Placeholder injected by Streamlit
     const MODEL = "qwen/qwen-2.5-72b-instruct";
 
-    // Category mapping (simplified for demo)
-    document.getElementById('app-type').addEventListener('change', function() {
-        const catSelect = document.getElementById('app-category');
-        catSelect.disabled = false;
-        catSelect.innerHTML = `<option value="default">Default Sub-Category</option>`;
+    // --- Category Mapping Logic ---
+    const categoryMapping = {
+        "🛍️ E-Commerce & Shopping": ["General Shopping", "Fashion & Apparel", "Electronics & Gadgets", "Grocery & Supermarket", "Luxury Goods", "Second-hand/Thrift", "Auction & Bidding", "Multi-vendor Marketplace"],
+        "🏥 Healthcare & Telemedicine (Doctors)": ["General Consultation", "Specialist Care", "Mental Health", "Dental Care", "Pediatric Care", "Emergency Services", "Prescription Management", "Health Records"],
+        "🤖 Personal Assistants & Productivity": ["Task Management", "Calendar & Scheduling", "Note-taking", "Voice Assistant", "AI Chatbot", "Habit Tracker", "Time Management", "Project Management"],
+        "🚌 Transportation & Travel (Bus Reservation)": ["Bus Booking", "Train Reservation", "Flight Booking", "Taxi/Ride-sharing", "Public Transit", "Car Rental", "Bike/Scooter Sharing", "Travel Planning"],
+        "🍔 Food & Restaurant": ["Restaurant Finder", "Food Delivery", "Recipe & Cooking", "Restaurant Reservations", "Meal Planning", "Nutrition Tracker", "Cloud Kitchen", "Café & Coffee Shops"],
+        "💰 Finance & Banking (FinTech)": ["Digital Banking", "Investment & Trading", "Budgeting", "Cryptocurrency", "Payment & Wallet", "Insurance", "Loan Management", "Expense Tracker"],
+        "💬 Social Media & Communication": ["Social Networking", "Instant Messaging", "Video Calling", "Professional Networking", "Dating & Relationships", "Community Forums", "Content Sharing", "Live Streaming"],
+        "📰 News, Information & Education": ["News Aggregator", "E-learning Platform", "Online Courses", "Language Learning", "Exam Preparation", "Educational Games", "Research & Reference", "Tutoring Services"],
+        "🎬 Entertainment & Streaming": ["Video Streaming", "Music Streaming", "Gaming", "Podcast Platform", "Live TV", "Event Ticketing", "Comedy & Stand-up", "Audiobooks"],
+        "🔧 Utilities & Tools": ["File Manager", "Calculator", "Weather", "Scanner & PDF", "Password Manager", "VPN & Security", "Cleaner & Optimizer", "Translation"],
+        "🏠 Home & Lifestyle Management": ["Smart Home Control", "Interior Design", "Home Services", "Gardening & Plants", "Pet Care", "Home Maintenance", "Roommate Finder", "Home Inventory"],
+        "💪 Fitness, Health & Wellness": ["Workout & Exercise", "Yoga & Meditation", "Running & Cycling", "Calorie Counter", "Sleep Tracker", "Weight Loss", "Bodybuilding", "Wellness Coaching"],
+        "✈️ Travel & Accommodation": ["Hotel Booking", "Vacation Rentals", "Travel Guide", "Flight Tracker", "Itinerary Planner", "Visa Assistance", "Travel Insurance", "Local Experiences"],
+        "💘 Dating & Relationships": ["Casual Dating", "Serious Relationships", "Friendship", "Matrimonial", "LGBTQ+ Dating", "Speed Dating", "Relationship Advice", "Couple Activities"],
+        "💼 Career, Job Search & Freelancing": ["Job Board", "Resume Builder", "Freelance Platform", "Internship Finder", "Career Counseling", "Skill Development", "Remote Work", "Gig Economy"],
+        "📸 Photography & Video Editing": ["Photo Editor", "Video Editor", "Camera App", "Photo Sharing", "Stock Photos", "Collage Maker", "Filters & Effects", "Photo Storage"],
+        "🎵 Music & Audio Production": ["Music Player", "Music Creator", "Audio Editor", "Podcast Creator", "Ringtone Maker", "Music Lessons", "Sound Effects", "DJ Mixing"],
+        "🏡 Real Estate & Property": ["Property Buying", "Property Rental", "Commercial Real Estate", "Property Management", "Mortgage Calculator", "Virtual Tours", "Investment Properties", "Short-term Rentals"],
+        "🚗 Automotive & Vehicles": ["Car Buying/Selling", "Vehicle Maintenance", "Fuel Finder", "Parking Assistant", "Car Insurance", "Auto Parts", "Vehicle Tracking", "Driving Assistant"],
+        "👶 Parenting & Childcare": ["Baby Tracker", "Childcare Services", "Parenting Tips", "Kids Activities", "Educational Games for Kids", "Nanny Finder", "Pregnancy Tracker", "School Management"],
+        "⚽ Sports & Outdoor Activities": ["Sports News", "Fitness Sports", "Team Management", "Sports Betting", "Outdoor Adventures", "Sports Coaching", "Event Booking", "Sports Social Network"],
+        "🥽 AR & VR": ["AR Games", "VR Experiences", "AR Shopping", "Virtual Tours", "AR Education", "VR Fitness", "AR Navigation", "VR Social"],
+        "🏛️ Government & Civic Services": ["E-Governance", "Tax Filing", "License Applications", "Public Services", "Voting Information", "Citizen Complaints", "Benefits & Welfare", "Document Services"],
+        "📨 Messaging & Communication (Expanded)": ["Secure Messaging", "Business Communication", "Team Chat", "Video Conferencing", "SMS Alternative", "Broadcast Messaging", "Anonymous Chat", "Interest-based Chat"],
+        "🍽️ Food & Restaurant (Bonus Expanded)": ["Fine Dining", "Fast Food", "Vegan/Vegetarian", "Food Trucks", "Catering Services", "Wine & Spirits", "Bakery & Desserts", "International Cuisine"]
+    };
+
+    const appTypeSelect = document.getElementById('app-type');
+    const appCategorySelect = document.getElementById('app-category');
+
+    appTypeSelect.addEventListener('change', function() {
+        const selectedType = this.value;
+        appCategorySelect.innerHTML = '<option value="">-- Select Category --</option>';
+        
+        if (selectedType !== '-- Select Application Type --' && categoryMapping[selectedType]) {
+            appCategorySelect.disabled = false;
+            categoryMapping[selectedType].forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                appCategorySelect.appendChild(option);
+            });
+        } else {
+            appCategorySelect.disabled = true;
+            appCategorySelect.innerHTML = '<option value="">-- First select an App Type --</option>';
+        }
     });
 
+    // --- Button Actions ---
     function resetFields() {
         document.querySelectorAll('textarea').forEach(t => t.value = '');
         document.getElementById('preview-container').style.display = 'none';
-        alert('Fields reset successfully.');
     }
 
-    // Mock generators for UX/UI & Wireframe (placeholder logic)
     function generateUXUI() { document.getElementById('ux-output').value = "[UX Process Generated]"; document.getElementById('ui-output').value = "[UI Design Generated]"; }
     function generateWireframe() { document.getElementById('wireframe-input').value = "Header: App Logo & Nav\nHero: Feature Banner\nContent: Card Grid\nFooter: Links & Social\n\nResponsive mobile-first layout with smooth transitions."; }
 
-    // Core Angular Frame Generator
     async function generateAngularFrame() {
         const wireframe = document.getElementById('wireframe-input').value.trim();
         const btn = document.getElementById('gen-angular-btn');
@@ -153,7 +194,7 @@
         const iframe = document.getElementById('preview-iframe');
 
         if (!wireframe) return alert("⚠️ Please describe a wireframe diagram first.");
-        if (API_KEY === "{{OPENROUTER_API_KEY}}") return alert("⚠️ OpenRouter API Key not configured.");
+        if (API_KEY === "{{MOBAPPKEY}}") return alert("⚠️ OpenRouter API Key not configured.");
 
         btn.disabled = true;
         btn.textContent = "⏳ Generating Angular Frame...";
@@ -181,7 +222,7 @@
             const data = await res.json();
             let code = data.choices[0].message.content;
             
-            // Clean markdown formatting if LLM adds it
+            // Clean markdown formatting
             code = code.replace(/```html/g, '').replace(/```/g, '').trim();
             
             output.value = code;
