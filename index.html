@@ -57,25 +57,24 @@
         .api-status.configured { background: rgba(0, 255, 136, 0.1); color: var(--success); border: 1px solid var(--success); }
         .api-status.not-configured { background: rgba(255, 68, 68, 0.1); color: var(--error); border: 1px solid var(--error); }
 
-        /* Selection Status Styling (Restored) */
+        /* Selection Status Styling - MATCHES REFERENCE SCREENSHOT */
         .selection-status {
             margin-top: 10px; 
             padding: 12px; 
             text-align: center;
-            font-size: 0.85em; 
+            font-size: 0.9em; 
             color: var(--text-muted);
             border: 1px dashed var(--border); 
             border-radius: 6px;
-            background: rgba(0, 229, 255, 0.05);
+            background: rgba(255, 255, 255, 0.02);
             transition: all 0.3s ease;
             line-height: 1.6;
         }
         .selection-status.active { 
             color: var(--accent); 
-            border-color: var(--accent); 
-            border-style: solid;
+            border: 1px solid var(--accent); 
             background: rgba(0, 229, 255, 0.1);
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.15);
         }
     </style>
 </head>
@@ -126,7 +125,8 @@
             <select id="app-category" disabled>
                 <option value="">-- First select an App Type --</option>
             </select>
-            <!-- RESTORED: TYPE & CATEGORY SELECTION STATUS BOX -->
+            
+            <!-- TYPE & CATEGORY SELECTION STATUS BOX -->
             <div id="selection-status" class="selection-status">
                 ⚡ WAITING FOR SELECTION<br>
                 🎨 WAITING FOR TYPE & CATEGORY SELECTION<br>
