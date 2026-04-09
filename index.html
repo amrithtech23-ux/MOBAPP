@@ -48,20 +48,35 @@
         iframe { width: 100%; height: 100%; border: none; }
         
         .status { text-align: center; color: var(--text-muted); font-size: 0.85em; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+        
+        /* API Status Styling */
         .api-status { 
             padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center; 
             font-size: 0.9em; font-weight: 600;
         }
         .api-status.configured { background: rgba(0, 255, 136, 0.1); color: var(--success); border: 1px solid var(--success); }
         .api-status.not-configured { background: rgba(255, 68, 68, 0.1); color: var(--error); border: 1px solid var(--error); }
-        
-        /* Restored Selection Status Block */
+
+        /* Selection Status Styling (Restored) */
         .selection-status {
-            margin-top: 10px; padding: 8px; text-align: center;
-            font-size: 0.85em; color: var(--text-muted);
-            border: 1px dashed var(--border); border-radius: 4px;
+            margin-top: 10px; 
+            padding: 12px; 
+            text-align: center;
+            font-size: 0.85em; 
+            color: var(--text-muted);
+            border: 1px dashed var(--border); 
+            border-radius: 6px;
+            background: rgba(0, 229, 255, 0.05);
+            transition: all 0.3s ease;
+            line-height: 1.6;
         }
-        .selection-status.active { color: var(--accent); border-color: var(--accent); }
+        .selection-status.active { 
+            color: var(--accent); 
+            border-color: var(--accent); 
+            border-style: solid;
+            background: rgba(0, 229, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -69,6 +84,7 @@
     <h1>📱 MOBILE APPs DESIGNS<br>IDEATION STUDIO</h1>
     <div class="header-sub">⚡ Select App Type → Dynamic Category → Generate UX Process & UI Design | Bold Frame Architecture</div>
 
+    <!-- API Key Status Indicator -->
     <div id="api-status-div" class="api-status not-configured">
         ⚠️ Checking API Key...
     </div>
@@ -110,7 +126,7 @@
             <select id="app-category" disabled>
                 <option value="">-- First select an App Type --</option>
             </select>
-            <!-- Restored Selection Status Block -->
+            <!-- RESTORED: TYPE & CATEGORY SELECTION STATUS BOX -->
             <div id="selection-status" class="selection-status">
                 ⚡ WAITING FOR SELECTION<br>
                 🎨 WAITING FOR TYPE & CATEGORY SELECTION<br>
@@ -152,6 +168,7 @@
 
 <script>
     // --- OpenRouter Configuration ---
+    // This placeholder will be replaced by Streamlit secrets
     const API_KEY = "{{OPENROUTER_API_KEY}}";
     const MODEL = "qwen/qwen-2.5-72b-instruct";
 
@@ -200,9 +217,12 @@
     const appCategorySelect = document.getElementById('app-category');
     const selectionStatus = document.getElementById('selection-status');
 
+    // --- Logic to Update Dropdown and Selection Status ---
     appTypeSelect.addEventListener('change', function() {
         const selectedType = this.value;
         appCategorySelect.innerHTML = '<option value="">-- Select Category --</option>';
+        
+        // Reset status to waiting
         selectionStatus.className = "selection-status";
         selectionStatus.innerHTML = "⚡ WAITING FOR SELECTION<br>🎨 WAITING FOR TYPE & CATEGORY SELECTION<br>-- Select App Type and Category first --";
         
@@ -221,9 +241,11 @@
 
     appCategorySelect.addEventListener('change', function() {
         if (this.value) {
+            // Update status to complete
             selectionStatus.className = "selection-status active";
             selectionStatus.innerHTML = "✅ SELECTION COMPLETE<br>🎨 Type & Category Selected<br>-- Ready to Generate --";
         } else {
+            // Reset status
             selectionStatus.className = "selection-status";
             selectionStatus.innerHTML = "⚡ WAITING FOR SELECTION<br>🎨 WAITING FOR TYPE & CATEGORY SELECTION<br>-- Select App Type and Category first --";
         }
@@ -232,8 +254,11 @@
     function resetFields() {
         document.querySelectorAll('textarea').forEach(t => t.value = '');
         document.getElementById('preview-container').style.display = 'none';
+        
+        // Reset selection status
         selectionStatus.className = "selection-status";
         selectionStatus.innerHTML = "⚡ WAITING FOR SELECTION<br>🎨 WAITING FOR TYPE & CATEGORY SELECTION<br>-- Select App Type and Category first --";
+        
         appCategorySelect.disabled = true;
         appCategorySelect.innerHTML = '<option value="">-- First select an App Type --</option>';
         appTypeSelect.value = "";
